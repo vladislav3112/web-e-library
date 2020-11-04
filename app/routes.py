@@ -62,6 +62,6 @@ def add_book():
         flash('Your book succesfully added!')
         return redirect(url_for('index'))
     books = current_user.get_books()    # not sure
-    return render_template("index.html", title='Home', form=form,books=books)
+    return render_template("add_book.html", title = 'Add_book', form = form)
 
     
