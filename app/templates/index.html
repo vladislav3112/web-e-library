@@ -2,7 +2,11 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
+    {% for book in books %}
+    <div><p>Your {{ book.name }} book: </p><br>
+         <b>Author: {{ book.author }} </b>  
+        </div>
     {% endfor %}
+
 {% endblock %}
+

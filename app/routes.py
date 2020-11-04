@@ -5,24 +5,16 @@ from app.forms import LoginForm, RegestrationForm
 from flask_login import logout_user
 from flask_login import current_user, login_user
 from flask_login import login_required
-from app.models import User
-
+from app.models import User, Book
+from app.forms import BookForm
 from werkzeug.urls import url_parse
+
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Time movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', posts=posts)
+    books = current_user.get_books() 
+    return render_template('index.html', title='Home', books = books)
 
 @app.route('/logout')
 def logout():
@@ -59,3 +51,17 @@ def register():
         flash('You are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title = 'Register', form = form)
+
+@app.route('/add_book', methods=['GET', 'POST'])
+def add_book():
+    form = BookForm()
+    if form.validate_on_submit():
+        book = Book(name = form.name.data, author = form.author.data, user = current_user)
+        db.session.add(book)
+        db.session.commit()
+        flash('Your book succesfully added!')
+        return redirect(url_for('index'))
+    books = current_user.get_books()    # not sure
+    return render_template("index.html", title='Home', form=form,books=books)
+
+    
