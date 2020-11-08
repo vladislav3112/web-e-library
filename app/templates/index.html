@@ -5,6 +5,10 @@
     {% for book in books %}
     <div><p>Your {{ book.name }} book: </p><br>
          <b>Author: {{ book.author }} </b>  
+         <form action="{{ url_for('delete_book', id = book.id) }}" method=post class=delete-book>
+            <input type=hidden value="{{ book.id }}"/>
+            <input type=submit value=Delete />
+          </form>
         </div>
     {% endfor %}
 

@@ -62,3 +62,9 @@ def add_book():
         flash('Your book succesfully added!')
         return redirect(url_for('index'))
     return render_template("add_book.html", title = 'Add_book', form = form)
+
+@app.route('/delete/<id>', methods=['POST'])
+def delete_book(id):
+    Book.query.filter(Book.user_id == current_user.id).filter(Book.id == id).delete()
+    db.session.commit()
+    return redirect(url_for('index'))

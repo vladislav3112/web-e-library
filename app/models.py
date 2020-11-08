@@ -22,6 +22,8 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
     def get_books(self):
         return Book.query.filter(Book.user_id == self.id).order_by(Book.name.desc())
+    def get_book_by_id(self, book_id):
+        return Book.query.filter(Book.user_id == self.id).filter(Book.id == book_id)
 
 
 @login.user_loader
@@ -30,7 +32,7 @@ def load_user(id):
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
+    name = db.Column(db.String(80), unique=True)
     author = db.Column(db.String(20))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
