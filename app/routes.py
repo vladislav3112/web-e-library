@@ -9,12 +9,30 @@ from app.models import User, Book
 from app.forms import BookForm
 from werkzeug.urls import url_parse
 
+
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    books = current_user.get_books() 
+    sort_type = request.form.get('sort_type')
+    if sort_type == "2":
+        books = current_user.get_books_by_name_desc() 
+    elif sort_type == "3":
+        books = current_user.get_books_by_author_asc() 
+    elif sort_type == "4":
+        books = current_user.get_books_by_author_desc() 
+    else: 
+         books = current_user.get_books_by_name_asc() 
     return render_template('index.html', title='Home', books = books)
+    # if sort_type == 2:
+    #     books = current_user.get_books_by_name_desc() 
+    # elif sort_type == 3:
+    #     books = current_user.get_books_by_author_asc() 
+    # elif sort_type == 4:
+    #     books = current_user.get_books_by_author_desc() 
+    # else: 
+    #     books = current_user.get_books_by_name_asc() 
+    # return render_template('index.html', title='Home', books = books)
 
 @app.route('/logout')
 def logout():

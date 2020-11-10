@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from app.models import User
@@ -29,4 +30,5 @@ class LoginForm(FlaskForm):
 class BookForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     author = StringField('Author', validators=[DataRequired()])
+    image = FileField('File', validators=[FileAllowed(['.jpg','.png'])])
     submit = SubmitField('Add book')

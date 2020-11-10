@@ -3,7 +3,7 @@ from app import login
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-
+from flask import url_for
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,10 +20,14 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    def get_books(self):
+    def get_books_by_name_desc(self):
         return Book.query.filter(Book.user_id == self.id).order_by(Book.name.desc())
-    def get_book_by_id(self, book_id):
-        return Book.query.filter(Book.user_id == self.id).filter(Book.id == book_id)
+    def get_books_by_name_asc(self):
+        return Book.query.filter(Book.user_id == self.id).order_by(Book.name)
+    def get_books_by_author_desc(self):
+        return Book.query.filter(Book.user_id == self.id).order_by(Book.author.desc())
+    def get_books_by_author_asc(self):
+        return Book.query.filter(Book.user_id == self.id).order_by(Book.author)
 
 
 @login.user_loader
@@ -35,6 +39,7 @@ class Book(db.Model):
     name = db.Column(db.String(80), unique=True)
     author = db.Column(db.String(20))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    #image = db.Column(ImageColumn(size=(300, 300, True), thumbnail_size=(30, 30, True)))
 
     def __repr__(self):
         return '<Book {}>' % self.name

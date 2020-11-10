@@ -2,6 +2,17 @@
 
 {% block content %}
     <h1>Hi, {{ current_user.username }}!</h1>
+    <h2>Order books by:</h2>
+    <form name="sort" action="{{ url_for('index') }}"  method='post'>
+          <select name="sort_type">
+            <option value="1">name ascended</option>
+            <option value="2">name descended</option>
+            <option value="3">author ascended</option>
+            <option value="4">author descended</option>        
+          </select>
+        <button type="submit">Confirm</button>
+    </form>
+
     {% for book in books %}
     <div><p>Your {{ book.name }} book: </p><br>
          <b>Author: {{ book.author }} </b>  
