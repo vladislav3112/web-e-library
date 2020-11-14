@@ -27,8 +27,8 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
-class BookForm(FlaskForm):
+class BookForm(FlaskForm):      
     name = StringField('Name', validators=[DataRequired()])
     author = StringField('Author', validators=[DataRequired()])
-    image = FileField('File', validators=[FileAllowed(['.jpg','.png'])])
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField('Add book')

@@ -8,7 +8,8 @@ from flask_login import login_required
 from app.models import User, Book
 from app.forms import BookForm
 from werkzeug.urls import url_parse
-
+import os
+from flask import send_from_directory   
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -24,15 +25,6 @@ def index():
     else: 
          books = current_user.get_books_by_name_asc() 
     return render_template('index.html', title='Home', books = books)
-    # if sort_type == 2:
-    #     books = current_user.get_books_by_name_desc() 
-    # elif sort_type == 3:
-    #     books = current_user.get_books_by_author_asc() 
-    # elif sort_type == 4:
-    #     books = current_user.get_books_by_author_desc() 
-    # else: 
-    #     books = current_user.get_books_by_name_asc() 
-    # return render_template('index.html', title='Home', books = books)
 
 @app.route('/logout')
 def logout():
@@ -74,11 +66,21 @@ def register():
 def add_book():
     form = BookForm()
     if form.validate_on_submit():
-        book = Book(name = form.name.data, author = form.author.data, user = current_user)
-        db.session.add(book)
-        db.session.commit()
-        flash('Your book succesfully added!')
-        return redirect(url_for('index'))
+        if request.method == 'POST':
+            uploaded_file = form.image.data
+            if uploaded_file:
+                uploaded_file.stream.seek(0)
+                uploaded_file.save(os.path.join(app.config['SQLALCHEMY_DATABASE_URI'],"/", uploaded_file.filename))
+                book = Book(name = form.name.data, author = form.author.data, user = current_user, image_name = uploaded_file.filename)
+            else:
+                book = Book(name = form.name.data, author = form.author.data, user = current_user)
+           
+            db.session.add(book)
+            db.session.commit()
+            flash('Your book succesfully added!')
+            return redirect(url_for('index'))
+        else:
+            flash('empty file name!')
     return render_template("add_book.html", title = 'Add_book', form = form)
 
 @app.route('/delete/<id>', methods=['POST'])
@@ -86,3 +88,7 @@ def delete_book(id):
     Book.query.filter(Book.user_id == current_user.id).filter(Book.id == id).delete()
     db.session.commit()
     return redirect(url_for('index'))
+    
+@app.route('/uploads/<filename>')
+def uploads(filename):
+    return send_from_directory(os.path.join(app.config['SQLALCHEMY_DATABASE_URI'],"/"), filename)

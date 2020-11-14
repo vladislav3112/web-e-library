@@ -39,7 +39,7 @@ class Book(db.Model):
     name = db.Column(db.String(80), unique=True)
     author = db.Column(db.String(20))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    #image = db.Column(ImageColumn(size=(300, 300, True), thumbnail_size=(30, 30, True)))
+    image_name = db.Column(db.String(20))
 
     def __repr__(self):
         return '<Book {}>' % self.name
