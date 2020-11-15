@@ -2,7 +2,7 @@ Flask==1.0.0
 Flask-Login==0.4.1
 Flask-Mail==0.8.2
 Flask-OpenID==1.1.1
-Flask-SQLAlchemy==0.16
+Flask-SQLAlchemy==1.0
 Flask-Migrate==1.8.0
 Flask-WTF==0.8.3
 Jinja2==2.10.1
