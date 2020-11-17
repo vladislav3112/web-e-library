@@ -67,20 +67,11 @@ def add_book():
     form = BookForm()
     if form.validate_on_submit():
         if request.method == 'POST':
-            uploaded_file = form.image.data
-            if uploaded_file:
-                uploaded_file.stream.seek(0)
-                uploaded_file.save(os.path.join(app.config['SQLALCHEMY_DATABASE_URI'],"/", uploaded_file.filename))
-                book = Book(name = form.name.data, author = form.author.data, user = current_user, image_name = uploaded_file.filename)
-            else:
-                book = Book(name = form.name.data, author = form.author.data, user = current_user)
-           
+            book = Book(name = form.name.data, author = form.author.data, user = current_user)
             db.session.add(book)
             db.session.commit()
             flash('Your book succesfully added!')
             return redirect(url_for('index'))
-        else:
-            flash('empty file name!')
     return render_template("add_book.html", title = 'Add_book', form = form)
 
 @app.route('/delete/<id>', methods=['POST'])
@@ -88,7 +79,3 @@ def delete_book(id):
     Book.query.filter(Book.user_id == current_user.id).filter(Book.id == id).delete()
     db.session.commit()
     return redirect(url_for('index'))
-    
-@app.route('/uploads/<filename>')
-def uploads(filename):
-    return send_from_directory(os.path.join(app.config['SQLALCHEMY_DATABASE_URI'],"/"), filename)
