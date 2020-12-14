@@ -1,6 +1,0 @@
-FLASK_APP=e-library.py
-FLASK_DEBUG=1
-MAIL_PASSWORD=vita2013
-ADMIN=vlad1231381@gmail.com
-MAIL_PORT=587
-MAIL_SERVER=smtp.gmail.com
