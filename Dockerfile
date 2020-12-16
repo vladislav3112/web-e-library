@@ -7,7 +7,7 @@ WORKDIR /home/e-library
 COPY requirements.txt requirements.txt
 RUN python -m venv venv
 RUN venv/bin/pip install -r requirements.txt
-RUN venv/bin/pip install gunicorn
+RUN venv/bin/pip install gunicorn pymysql
 
 COPY app app
 COPY migrations migrations
@@ -19,5 +19,5 @@ ENV FLASK_APP e-library.py
 RUN chown -R e-library:e-library ./
 USER e-library
 
-EXPOSE 5000
+EXPOSE 5000 
 ENTRYPOINT ["./boot.sh"]
