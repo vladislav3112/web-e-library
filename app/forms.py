@@ -9,6 +9,7 @@ class RegestrationForm(FlaskForm):
     email = StringField('Email',validators=[DataRequired(),Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('RepeatPassword', validators=[DataRequired(),EqualTo('password')])
+    profile_type = BooleanField('is profile public?')
     submit = SubmitField('Register')
 
     def validate_username(self, username):

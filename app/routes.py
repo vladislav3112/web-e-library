@@ -59,6 +59,7 @@ def register():
     if form.validate_on_submit():
         user = User(username = form.username.data, email = form.email.data)
         user.set_password(form.password.data)
+        user.set_profile(form.profile_type.data)
         db.session.add(user)
         db.session.commit()
         flash('You are now a registered user!')
@@ -70,7 +71,13 @@ def add_book():
     form = BookForm()
     if form.validate_on_submit():
         if request.method == 'POST':
+            
             book = Book(name = form.name.data, author = form.author.data, user = current_user)
+            existing_book = Book.query.filter(Book.name == form.name.data).filter(Book.user_id == current_user.id).first_or_404()
+            if (existing_book.name == form.name.data and  existing_book.author == form.author.data and existing_book.user_id == current_user.id):
+                flash('Book already exists!')
+                return redirect(url_for('add_book'))
+            
             db.session.add(book)
             db.session.commit()
             flash('Your book succesfully added!')
@@ -113,3 +120,14 @@ def reset_password(token):
         flash('Your password has been reset.')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    Books = Book.query.filter(Book.user_id == user.id).order_by(Book.name.desc())
+    if(user.is_public or user.is_public==None):
+        return render_template('user.html', user=user, books = Books)
+    else:
+        flash('Sorry, user has private profile!')
+        return redirect(url_for('index'))

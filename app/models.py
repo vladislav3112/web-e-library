@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     books = db.relationship('Book', backref='user', lazy='dynamic')
+    is_public = db.Column(db.Boolean, default=True)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -34,6 +35,8 @@ class User(UserMixin, db.Model):
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+    def set_profile(self, profile_type):
+        self.is_public = profile_type
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
