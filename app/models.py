@@ -13,8 +13,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    books = db.relationship('Book', backref='user', lazy='dynamic')
+    books = db.relationship('Book', backref='user', lazy='dynamic') #many to many needed
     is_public = db.Column(db.Boolean, default=True)
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
@@ -59,6 +60,7 @@ class Book(db.Model):
     name = db.Column(db.String(80))
     author = db.Column(db.String(20))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    create_time = db.Column(db.DateTime)
 
     def __repr__(self):
         return '<Book {}>' % self.name

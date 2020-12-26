@@ -42,10 +42,9 @@ class ResetPasswordForm(FlaskForm):
 class BookForm(FlaskForm):      
     name = StringField('Name', validators=[DataRequired()])
     author = StringField('Author', validators=[DataRequired()])
-    image = FileField('Image', validators=[FileAllowed(['jpg', 'png'], 'Images only!')])
     submit = SubmitField('Add book')
 
     def validate_book(self, name, author):
         book = Book.query.filter_by(name=name.data).first()
         if book is not None:
-            raise ValidationError('Book alreaady exists.')
+            raise ValidationError('Book already exists.')

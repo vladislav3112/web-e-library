@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>New books:</h1>
+    <hr>
+    {% for book in books %}
+    <div class="book">
+       <p>Name: {{ book.name }} </p><br>       
+       <p>Author: {{ book.author }} </p>
+       {% if book.create_time %}<p>Created: {{ book.create_time }}</p>{% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}

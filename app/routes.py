@@ -13,6 +13,7 @@ from flask import send_from_directory
 from app.forms import ResetPasswordRequestForm
 from app.email import send_password_reset_email
 from app.forms import ResetPasswordForm
+from datetime import datetime
 
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
@@ -31,6 +32,8 @@ def index():
 
 @app.route('/logout')
 def logout():
+    current_user.last_seen = datetime.utcnow()
+    db.session.commit()
     logout_user()
     return redirect(url_for('index'))
 
@@ -71,13 +74,15 @@ def add_book():
     form = BookForm()
     if form.validate_on_submit():
         if request.method == 'POST':
-            
+            existing_book = Book.query.filter(Book.name == form.name.data).filter(Book.user_id == current_user.id).first()
             book = Book(name = form.name.data, author = form.author.data, user = current_user)
-            existing_book = Book.query.filter(Book.name == form.name.data).filter(Book.user_id == current_user.id).first_or_404()
-            if (existing_book.name == form.name.data and  existing_book.author == form.author.data and existing_book.user_id == current_user.id):
+            
+            if ((existing_book != None)and(existing_book.name == form.name.data and  existing_book.author == form.author.data and existing_book.user_id == current_user.id)):
                 flash('Book already exists!')
                 return redirect(url_for('add_book'))
             
+            book.create_time = datetime.utcnow()
+
             db.session.add(book)
             db.session.commit()
             flash('Your book succesfully added!')
@@ -131,3 +136,9 @@ def user(username):
     else:
         flash('Sorry, user has private profile!')
         return redirect(url_for('index'))
+
+@app.route('/new_books')
+@login_required
+def new_books():
+    Books = Book.query.filter(Book.create_time > current_user.last_seen).order_by(Book.create_time.desc())
+    return render_template('new_books.html', user=current_user, books = Books)
