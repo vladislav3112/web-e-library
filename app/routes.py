@@ -143,7 +143,8 @@ def new_books():
     Books = Book.query.join(
             User, (User.id == Book.user_id)).filter(
                 User.is_public == True).filter(
-                Book.create_time > current_user.last_seen).order_by(
+                Book.create_time > current_user.last_seen).filter(
+                Book.user_id != current_user.id).order_by(
                     Book.create_time.desc())
 
     #Books = Book.query.filter(Book.create_time > current_user.last_seen).filter(User.query.filter(user)).order_by(Book.create_time.desc())
