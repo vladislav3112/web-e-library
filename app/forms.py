@@ -45,6 +45,6 @@ class BookForm(FlaskForm):
     submit = SubmitField('Add book')
 
     def validate_book(self, name, author):
-        book = Book.query.filter_by(name=name.data).first()
+        book = Book.query.filter_by(name=name.data).filter_by(author=author.data).first()
         if book is not None:
             raise ValidationError('Book already exists.')

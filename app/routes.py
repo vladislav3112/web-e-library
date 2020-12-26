@@ -5,7 +5,7 @@ from app.forms import LoginForm, RegestrationForm
 from flask_login import logout_user
 from flask_login import current_user, login_user
 from flask_login import login_required
-from app.models import User, Book
+from app.models import User, Book, user_book
 from app.forms import BookForm
 from werkzeug.urls import url_parse
 import os
@@ -74,24 +74,36 @@ def add_book():
     form = BookForm()
     if form.validate_on_submit():
         if request.method == 'POST':
-            existing_book = Book.query.filter(Book.name == form.name.data).filter(Book.user_id == current_user.id).first()
-            book = Book(name = form.name.data, author = form.author.data, user = current_user)
+            existing_book = Book.query.filter(Book.name == form.name.data).filter(Book.author == form.author.data).first()
+            book = Book(name = form.name.data, author = form.author.data)
             
-            if ((existing_book != None)and(existing_book.name == form.name.data and  existing_book.author == form.author.data and existing_book.user_id == current_user.id)):
+            if (existing_book == None):   
+                book.create_time = datetime.utcnow()            
+                db.session.add(book)
+            elif(current_user not in book.user):
+                book.user.append(current_user)
+                book.create_time = datetime.utcnow()
+            else:
                 flash('Book already exists!')
                 return redirect(url_for('add_book'))
-            
-            book.create_time = datetime.utcnow()
-
-            db.session.add(book)
+             #   return redirect(url_for('add_book'))
+           #and(existing_book.name == form.name.data and  existing_book.author == form.author.data and existing_book.user_id == current_user.id)):
+             #   flash('Book already exists!')
+             #   return redirect(url_for('add_book'))
             db.session.commit()
+
+            
             flash('Your book succesfully added!')
             return redirect(url_for('index'))
     return render_template("add_book.html", title = 'Add_book', form = form)
 
 @app.route('/delete/<id>', methods=['POST'])
 def delete_book(id):
-    Book.query.filter(Book.user_id == current_user.id).filter(Book.id == id).delete()
+    book = Book.query.filter(Book.id == id).first()
+    book.user.remove(current_user)
+    if (book.user == None):
+        Book.query.filter(Book.id == id).delete()
+        
     db.session.commit()
     return redirect(url_for('index'))
 
@@ -130,7 +142,9 @@ def reset_password(token):
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    Books = Book.query.filter(Book.user_id == user.id).order_by(Book.name.desc())
+    Books = Book.query.join(
+            user_book, (user_book.c.book_id == Book.id)).filter(
+                user_book.c.user_id == user.id).order_by(Book.name.desc())
     if(user.is_public or user.is_public==None):
         return render_template('user.html', user=user, books = Books)
     else:
@@ -140,12 +154,10 @@ def user(username):
 @app.route('/new_books')
 @login_required
 def new_books():
-    Books = Book.query.join(
-            User, (User.id == Book.user_id)).filter(
+    _books = Book.query.join(
+            user_book, (Book.id == user_book.c.book_id and User.id == user_book.c.user_id)).filter(
                 User.is_public == True).filter(
                 Book.create_time > current_user.last_seen).filter(
-                Book.user_id != current_user.id).order_by(
+                user_book.c.user_id != current_user.id).order_by(
                     Book.create_time.desc())
-
-    #Books = Book.query.filter(Book.create_time > current_user.last_seen).filter(User.query.filter(user)).order_by(Book.create_time.desc())
-    return render_template('new_books.html', user=current_user, books = Books)
+    return render_template('new_books.html', user=current_user, books = _books)
